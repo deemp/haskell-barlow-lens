@@ -10,7 +10,7 @@ module Data.Lens.Barlow.Parser where
 import Data.Data (Proxy)
 import GHC.Base (Constraint, Symbol)
 
--- import GHC.Base (Constraint, Symbol)
+-- Translating https://github.com/sigma-andex/purescript-barlow-lens/blob/main/src/Data/Lens/Barlow/Parser.purs
 
 -------------------------
 -- Closed Type Families approach
