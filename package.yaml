@@ -24,8 +24,8 @@ default-extensions:
 
 dependencies:
   - base >= 4.7 && < 5
-  - lzma
-  - process
+  - first-class-families
+  - string-interpolate
 
 ghc-options:
   - -Wall

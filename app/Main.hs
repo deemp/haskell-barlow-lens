@@ -1,9 +1,9 @@
 module Main (main) where
 
-import Lib (someFunc)
+-- import Lib (someFunc)
 
 main :: IO ()
-main = someFunc
+main = print "hello"
 
 {- This code will be evaluated by ghcid
 -- $> putStrLn ("3" ++ "3")
