@@ -40,6 +40,7 @@ library
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , generic-lens
     , lens
     , profunctors
     , string-interpolate
@@ -57,6 +58,7 @@ executable nix-managed
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , generic-lens
     , lens
     , nix-managed
     , profunctors
@@ -76,6 +78,7 @@ test-suite nix-managed-test
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , generic-lens
     , lens
     , nix-managed
     , profunctors

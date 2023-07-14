@@ -28,6 +28,7 @@ dependencies:
   - string-interpolate
   - lens
   - profunctors
+  - generic-lens
 
 ghc-options:
   - -Wall
