@@ -27,7 +27,6 @@ library
   exposed-modules:
       Data.Lens.Barlow
       Data.Lens.Barlow.Construction
-      Data.Lens.Barlow.Generic
       Data.Lens.Barlow.ParserTF
       Data.Lens.Barlow.Types
   other-modules:
