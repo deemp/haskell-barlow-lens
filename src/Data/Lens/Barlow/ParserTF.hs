@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PolyKinds #-}
@@ -9,7 +10,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Data.Lens.Barlow.ParserTF () where
+module Data.Lens.Barlow.ParserTF (Parse) where
 
 -- Translating https://github.com/sigma-andex/purescript-barlow-lens/blob/main/src/Data/Lens/Barlow/Parser.purs
 
@@ -71,77 +72,76 @@ type family UnexpectedCharacterError (c :: Char) (expected :: Symbol) (prefix ::
           :<>: (Text "in " :<>: Text (AppendSymbol (FromCharsReverse prefix) (FromChars rest)))
       )
 
-type family Parse (parsed :: [Char]) (rest :: [Char]) (tags :: [Tag]) :: [Tag] where
-  Parse p '[] ts = ts
-  Parse p ('.' : xs) ts = Parse ('.' : p) xs ts
-  Parse p ('?' : xs) ts = Parse ('?' : p) xs (Tag'QuestionMark : ts)
-  Parse p ('>' : xs) ts = Parse ('>' : p) xs (Tag'RightArrow : ts)
-  Parse p ('<' : xs) ts = Parse ('<' : p) xs (Tag'LeftArrow : ts)
-  Parse p ('+' : xs) ts = Parse ('+' : p) xs (Tag'Plus : ts)
-  Parse p ('!' : xs) ts = Parse ('!' : p) xs (Tag'ExclamationMark : ts)
-  Parse p ('%' : x : xs) ts =
+type family Parse' (parsed :: [Char]) (rest :: [Char]) (tags :: [Tag]) :: [Tag] where
+  Parse' p '[] ts = ts
+  Parse' p ('.' : xs) ts = Parse' ('.' : p) xs ts
+  Parse' p ('?' : xs) ts = Parse' ('?' : p) xs (Tag'QuestionMark : ts)
+  Parse' p ('>' : xs) ts = Parse' ('>' : p) xs (Tag'RightArrow : ts)
+  Parse' p ('<' : xs) ts = Parse' ('<' : p) xs (Tag'LeftArrow : ts)
+  Parse' p ('+' : xs) ts = Parse' ('+' : p) xs (Tag'Plus : ts)
+  Parse' p ('!' : xs) ts = Parse' ('!' : p) xs (Tag'ExclamationMark : ts)
+  Parse' p ('%' : x : xs) ts =
     If
       (CharBetween x '1' '9')
-      (Parse (x : '%' : p) xs (Tag'PercentageNumber (DigitNat x) : ts))
+      (Parse' (x : '%' : p) xs (Tag'PercentageNumber (DigitNat x) : ts))
       ( If
           (IsSpecial x)
           (UnexpectedCharacterError x "Expected a letter or a digit\nafter '%'" p (x : xs))
-          (Parse (x : '%' : p) xs (Tag'PercentageName (ConsSymbol x "") : ts))
+          (Parse' (x : '%' : p) xs (Tag'PercentageName (ConsSymbol x "") : ts))
       )
-  Parse p (x : xs) (Tag'PercentageName s : ts) = Parse (x : p) xs (Tag'PercentageName (AppendChar s x) : ts)
-  Parse p (x : xs) (Tag'PercentageNumber n : ts) =
+  Parse' p (x : xs) (Tag'PercentageName s : ts) = Parse' (x : p) xs (Tag'PercentageName (AppendChar s x) : ts)
+  Parse' p (x : xs) (Tag'PercentageNumber n : ts) =
     If
       (CharBetween x '0' '9')
-      (Parse (x : p) xs (Tag'PercentageNumber (n TL.* 10 + DigitNat x) : ts))
+      (Parse' (x : p) xs (Tag'PercentageNumber (n TL.* 10 + DigitNat x) : ts))
       (UnexpectedCharacterError x "Expected a digit or a special character\nafter a digit" p (x : xs))
-  Parse p (x : xs) ts =
+  Parse' p (x : xs) ts =
     If
       (Eval (Or '[CharBetween x '0' '9']))
       (UnexpectedCharacterError x "Expected a letter" p (x : xs))
-      (Parse (x : p) xs (Tag'FieldName (FromChar x) : ts))
-  Parse _ _ _ = TypeError (Text "cornercase!")
+      (Parse' (x : p) xs (Tag'FieldName (FromChar x) : ts))
+  Parse' _ _ _ = TypeError (Text "cornercase!")
 
-type family Parse' (a :: Symbol) :: [Tag] where
-  Parse' a = Eval (Reverse (Parse '[] (ToChars a) '[]))
+type family Parse (a :: Symbol) :: [Tag] where
+  Parse a = Eval (Reverse (Parse' '[] (ToChars a) '[]))
 
 class KnownTag (a :: Tag) where
-  tagVal :: f a -> TagVal
+  tagVal :: TagVal
 
-instance KnownTag Tag'QuestionMark where tagVal _ = TagVal'QuestionMark
-instance KnownTag Tag'RightArrow where tagVal _ = TagVal'RightArrow
-instance KnownTag Tag'LeftArrow where tagVal _ = TagVal'LeftArrow
-instance KnownTag Tag'Plus where tagVal _ = TagVal'Plus
-instance KnownTag Tag'ExclamationMark where tagVal _ = TagVal'ExclamationMark
-instance (KnownSymbol a) => KnownTag (Tag'PercentageName a) where tagVal _ = TagVal'PercentageName (symbolVal (Proxy @a))
-instance (KnownNat a) => KnownTag (Tag'PercentageNumber a) where tagVal _ = TagVal'PercentageNumber (natVal (Proxy @a))
-instance (KnownSymbol a) => KnownTag (Tag'FieldName a) where tagVal _ = TagVal'FieldName (symbolVal (Proxy @a))
+instance KnownTag Tag'QuestionMark where tagVal = TagVal'QuestionMark
+instance KnownTag Tag'RightArrow where tagVal = TagVal'RightArrow
+instance KnownTag Tag'LeftArrow where tagVal = TagVal'LeftArrow
+instance KnownTag Tag'Plus where tagVal = TagVal'Plus
+instance KnownTag Tag'ExclamationMark where tagVal = TagVal'ExclamationMark
+instance (KnownSymbol a) => KnownTag (Tag'PercentageName a) where tagVal = TagVal'PercentageName (symbolVal (Proxy @a))
+instance (KnownNat a) => KnownTag (Tag'PercentageNumber a) where tagVal = TagVal'PercentageNumber (natVal (Proxy @a))
+instance (KnownSymbol a) => KnownTag (Tag'FieldName a) where tagVal = TagVal'FieldName (symbolVal (Proxy @a))
 
 class KnownTags (a :: [Tag]) where
-  tagVals :: Proxy a -> [TagVal]
+  tagVals :: [TagVal]
 
 instance KnownTags '[] where
-  tagVals _ = []
+  tagVals = []
 
 instance (KnownTag x, KnownTags xs) => KnownTags (x : xs) where
-  tagVals _ = tagVal (Proxy @x) : tagVals (Proxy @xs)
+  tagVals = (tagVal @x) : tagVals @xs
 
 -- tests
 
-ex1 :: Proxy (AppendSymbol "a" "b")
-ex1 = Proxy
+ex1 :: String
+ex1 = symbolVal (Proxy @(AppendSymbol "a" "b"))
 
--- >>> :t ex1
--- ex1 :: Proxy "ab"
+-- >>> ex1
+-- "ab"
 
--- >>> tagVals (Proxy @(Parse' "a?.!a%33"))
--- [TagVal'FieldName "a",TagVal'QuestionMark,TagVal'Dot,TagVal'ExclamationMark,TagVal'FieldName "a",TagVal'PercentageNumber 33]
+-- >>> tagVals @(Parse "a?.!a%33")
+-- [TagVal'FieldName "a",TagVal'QuestionMark,TagVal'ExclamationMark,TagVal'FieldName "a",TagVal'PercentageNumber 33]
 
--- >>> tagVals (Proxy @(Parse' "a?.!a%3a"))
+-- >>> tagVals @(Parse "a?.!a%3a")
 -- Unexpected character: a
 -- Expected a digit or a special character
 -- after a digit
 -- in a?.!a%3
 -- in a?.!a%3a
--- In the expression: tagVals (Proxy @(Parse' "a?.!a%3a"))
--- In an equation for `it_azx9j':
---     it_azx9j = tagVals (Proxy @(Parse' "a?.!a%3a"))
+-- In the expression: tagVals @(Parse "a?.!a%3a")
+-- In an equation for `it_aOV9': it_aOV9 = tagVals @(Parse "a?.!a%3a")
