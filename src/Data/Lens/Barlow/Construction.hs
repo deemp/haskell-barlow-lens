@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+-- {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -14,7 +15,6 @@
 module Data.Lens.Barlow.Construction () where
 
 import Control.Lens (Choice, Optic, Profunctor, traversed, _Just, _Left, _Right)
-import Data.Data (Proxy (..))
 
 import Data.Generics.Product.Fields
 import Data.Generics.Wrapped (Wrapped (wrappedIso))
@@ -49,34 +49,36 @@ type family SelectTagOther (lenses :: [Tag]) s t a b :: TagInstance where
   SelectTagOther (Tag'FieldName sym : rest) s t a b = Other'RecordSelector2
 
 class ConstructBarlow1 (tag :: TagInstance) (lenses :: [Tag]) p f s t a b where
-  constructBarlow :: Proxy lenses -> Optic p f s t a b
+  constructBarlow :: Optic p f s t a b
 
 type ConstructBarlow lenses p f s t a b =
   ConstructBarlow1 (SelectTagOther lenses s t a b) lenses p f s t a b
 
 instance (Choice p, Applicative f) => ConstructBarlow1 Other'QuestionMark1 (Tag'QuestionMark : '[]) p f (Maybe a) (Maybe b) a b where
-  constructBarlow _ = _Just
+  constructBarlow = _Just
 instance (Choice p, Applicative f) => ConstructBarlow1 Other'RightArrow1 (Tag'RightArrow : '[]) p f (Either l a) (Either l b) a b where
-  constructBarlow _ = _Right
+  constructBarlow = _Right
 instance (Choice p, Applicative f) => ConstructBarlow1 Other'LeftArrow1 (Tag'LeftArrow : '[]) p f (Either a r) (Either b r) a b where
-  constructBarlow _ = _Left
+  constructBarlow = _Left
+
 -- TODO generalize p ~ (->)?
 instance (Traversable t, Applicative f, p ~ (->)) => ConstructBarlow1 Other'Plus1 (Tag'Plus : '[]) p f (t a) (t b) a b where
-  constructBarlow _ = traversed
+  constructBarlow = traversed
 instance (Profunctor p, Wrapped s t a b, Functor f) => ConstructBarlow1 Other'ExclamationMark1 (Tag'ExclamationMark : '[]) p f s t a b where
-  constructBarlow _ = wrappedIso
+  constructBarlow = wrappedIso
 instance (HasField sym s t a b, Functor f, p ~ (->)) => ConstructBarlow1 Other'RecordSelector1 (Tag'FieldName sym : '[]) p f s t a b where
-  constructBarlow _ = field @sym
+  constructBarlow = field @sym
 
 instance (Choice p, ConstructBarlow rest p f restA restB a b, Applicative f) => ConstructBarlow1 Other'QuestionMark2 (Tag'QuestionMark : rest) p f (Maybe restA) (Maybe restB) a b where
-  constructBarlow _ = _Just . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = _Just . constructBarlow @(SelectTagOther rest restA restB a b) @rest
 instance (Choice p, ConstructBarlow rest p f restA restB a b, Applicative f) => ConstructBarlow1 Other'RightArrow2 (Tag'RightArrow : rest) p f (Either l restA) (Either l restB) a b where
-  constructBarlow _ = _Right . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = _Right . constructBarlow @(SelectTagOther rest restA restB a b) @rest
 instance (Choice p, ConstructBarlow rest p f restA restB a b, Applicative f) => ConstructBarlow1 Other'LeftArrow2 (Tag'LeftArrow : rest) p f (Either restA r) (Either restB r) a b where
-  constructBarlow _ = _Left . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = _Left . constructBarlow @(SelectTagOther rest restA restB a b) @rest
 instance (p ~ (->), Traversable t, ConstructBarlow rest p f restA restB a b, Applicative f) => ConstructBarlow1 Other'Plus2 (Tag'Plus : rest) p f (t restA) (t restB) a b where
-  constructBarlow _ = traversed . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = traversed . constructBarlow @(SelectTagOther rest restA restB a b) @rest
+
 instance (Profunctor p, Functor f, ConstructBarlow rest p f restA restB a b, Wrapped restA restB a b) => ConstructBarlow1 Other'ExclamationMark2 (Tag'ExclamationMark : rest) p f restA restB a b where
-  constructBarlow _ = wrappedIso . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = wrappedIso . constructBarlow @(SelectTagOther rest restA restB a b) @rest
 instance (p ~ (->), Functor f, ConstructBarlow rest p f restA restB a b, HasField sym restA restB a b) => ConstructBarlow1 Other'RecordSelector2 (Tag'FieldName sym : rest) p f restA restB a b where
-  constructBarlow _ = field @sym . constructBarlow (Proxy :: Proxy rest)
+  constructBarlow = field @sym . constructBarlow @(SelectTagOther rest restA restB a b) @rest
