@@ -73,7 +73,7 @@ type family UnexpectedCharacterError (c :: Char) (expected :: Symbol) (prefix ::
 
 type family Parse (parsed :: [Char]) (rest :: [Char]) (tags :: [Tag]) :: [Tag] where
   Parse p '[] ts = ts
-  Parse p ('.' : xs) ts = Parse ('.' : p) xs (Tag'Dot : ts)
+  Parse p ('.' : xs) ts = Parse ('.' : p) xs ts
   Parse p ('?' : xs) ts = Parse ('?' : p) xs (Tag'QuestionMark : ts)
   Parse p ('>' : xs) ts = Parse ('>' : p) xs (Tag'RightArrow : ts)
   Parse p ('<' : xs) ts = Parse ('<' : p) xs (Tag'LeftArrow : ts)
@@ -96,7 +96,7 @@ type family Parse (parsed :: [Char]) (rest :: [Char]) (tags :: [Tag]) :: [Tag] w
       (UnexpectedCharacterError x "Expected a digit or a special character\nafter a digit" p (x : xs))
   Parse p (x : xs) ts =
     If
-      (Eval (Or '[IsSpecial x, CharBetween x '0' '9']))
+      (Eval (Or '[CharBetween x '0' '9']))
       (UnexpectedCharacterError x "Expected a letter" p (x : xs))
       (Parse (x : p) xs (Tag'FieldName (FromChar x) : ts))
   Parse _ _ _ = TypeError (Text "cornercase!")
@@ -107,7 +107,6 @@ type family Parse' (a :: Symbol) :: [Tag] where
 class KnownTag (a :: Tag) where
   tagVal :: f a -> TagVal
 
-instance KnownTag Tag'Dot where tagVal _ = TagVal'Dot
 instance KnownTag Tag'QuestionMark where tagVal _ = TagVal'QuestionMark
 instance KnownTag Tag'RightArrow where tagVal _ = TagVal'RightArrow
 instance KnownTag Tag'LeftArrow where tagVal _ = TagVal'LeftArrow
@@ -134,12 +133,15 @@ ex1 = Proxy
 -- >>> :t ex1
 -- ex1 :: Proxy "ab"
 
--- >>> ex2 :: [TagVal]; ex2 = tagVals (Proxy @(Parse' "a?.!a%3a"))
+-- >>> tagVals (Proxy @(Parse' "a?.!a%33"))
+-- [TagVal'FieldName "a",TagVal'QuestionMark,TagVal'Dot,TagVal'ExclamationMark,TagVal'FieldName "a",TagVal'PercentageNumber 33]
+
+-- >>> tagVals (Proxy @(Parse' "a?.!a%3a"))
 -- Unexpected character: a
 -- Expected a digit or a special character
 -- after a digit
 -- in a?.!a%3
 -- in a?.!a%3a
 -- In the expression: tagVals (Proxy @(Parse' "a?.!a%3a"))
--- In an equation for `ex2':
---     ex2 = tagVals (Proxy @(Parse' "a?.!a%3a"))
+-- In an equation for `it_azx9j':
+--     it_azx9j = tagVals (Proxy @(Parse' "a?.!a%3a"))
