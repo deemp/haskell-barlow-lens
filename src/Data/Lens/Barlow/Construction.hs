@@ -9,6 +9,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Data.Lens.Barlow.Construction () where
 
@@ -18,8 +19,8 @@ import Data.Lens.Barlow.Generic
 import Data.Lens.Barlow.Types
 import Data.Profunctor (Strong)
 import Data.Profunctor.Traversing
+import Data.Generics.Product.Fields
 import GHC.Generics
-import GHC.Records (HasField)
 import GHC.TypeLits
 
 data TagPercentage
@@ -165,20 +166,27 @@ instance (Profunctor p, Rep nt ~ D1 (MetaData m1 m2 m3 True) (C1 c1 (S1 s1 (Rec0
 
 -- TODO https://github.com/sigma-andex/purescript-barlow-lens/blob/295c4b32fbeca052ebfd3665a9071012e654b9c0/src/Data/Lens/Barlow/Construction.purs#L287
 -- should be monomorphic?
-instance (Strong p, KnownSymbol sym, HasField sym x a, HasField sym y b) => ConstructBarlow1 Other'RecordSelector1 (Tag'FieldName sym : '[]) p f x y a b where
-  constructBarlow _ = prop (Proxy :: Proxy sym)
-instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'QuestionMark2 (Tag'QuestionMark : rest) p f (Maybe restA) (Maybe restB) a b
-instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'RightArrow2 (Tag'RightArrow : rest) p f (Either l restA) (Either l restB) a b
-instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'LeftArrow2 (Tag'LeftArrow : rest) p f (Either restA r) (Either restB r) a b
-instance (Traversing p, Traversable t, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'Plus2 (Tag'Plus : rest) p f (t restA) (t restB) a b
-instance (ConstructBarlow rest p f restA restA a a, Rep nt ~ D1 (MetaData m1 m2 m3 True) (C1 c1 (S1 s1 (Rec0 restA)))) => ConstructBarlow1 Other'ExclamationMark2 (Tag'ExclamationMark : rest) p f nt nt a a
+instance (Strong p, HasField sym x y a b) => ConstructBarlow1 Other'RecordSelector1 (Tag'FieldName sym : '[]) p f x y a b where
+  constructBarlow _ = field @sym
+instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'QuestionMark2 (Tag'QuestionMark : rest) p f (Maybe restA) (Maybe restB) a b where
+  constructBarlow _ = _Just . constructBarlow (Proxy :: Proxy rest)
+instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'RightArrow2 (Tag'RightArrow : rest) p f (Either l restA) (Either l restB) a b where
+  constructBarlow _ = _Right . constructBarlow (Proxy :: Proxy rest)
+instance (Choice p, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'LeftArrow2 (Tag'LeftArrow : rest) p f (Either restA r) (Either restB r) a b where
+  constructBarlow _ = _Left . constructBarlow (Proxy :: Proxy rest)
+instance (Traversing p, Traversable t, ConstructBarlow rest p f restA restB a b) => ConstructBarlow1 Other'Plus2 (Tag'Plus : rest) p f (t restA) (t restB) a b where
+  constructBarlow _ = traversed . constructBarlow (Proxy :: Proxy rest)
+instance (ConstructBarlow rest p f restA restA a a, Rep nt ~ D1 (MetaData m1 m2 m3 True) (C1 c1 (S1 s1 (Rec0 restA)))) => ConstructBarlow1 Other'ExclamationMark2 (Tag'ExclamationMark : rest) p f nt nt a a where
+  constructBarlow _ = _Newtype . constructBarlow (Proxy :: Proxy rest)
 
 -- TODO https://github.com/sigma-andex/purescript-barlow-lens/blob/295c4b32fbeca052ebfd3665a9071012e654b9c0/src/Data/Lens/Barlow/Construction.purs#L363
 -- should be monomorphic?
-instance (Strong p, KnownSymbol sym, ConstructBarlow rest p f x y a b, HasField sym x a, HasField sym y b) => ConstructBarlow1 Other'RecordSelector2 (Tag'FieldName sym : rest) p f x y a b
+instance (Strong p, ConstructBarlow rest p f x y a b, HasField sym x y a b) => ConstructBarlow1 Other'RecordSelector2 (Tag'FieldName sym : rest) p f x y a b where
+  constructBarlow _ = field @sym . constructBarlow (Proxy :: Proxy rest)
 
 -- TODO https://github.com/sigma-andex/purescript-barlow-lens/blob/295c4b32fbeca052ebfd3665a9071012e654b9c0/src/Data/Lens/Barlow/Construction.purs#L373
-instance (Profunctor p, Rep s y ~ repS, ConstructBarlowGeneric tlist p f repS repS a a) => ConstructBarlow1 Other'Generic tlist p f s s a a
+instance (Profunctor p, Rep s y ~ repS, ConstructBarlowGeneric tlist p f repS repS a a) => ConstructBarlow1 Other'Generic tlist p f s s a a where
+  constructBarlow _ = _ToGeneric . constructBarlowGeneric (Proxy :: Proxy tlist)
 
 type ConstructBarlow lenses p f s t a b =
   ConstructBarlow1 (SelectTagOther lenses s t a b) lenses p f s t a b
