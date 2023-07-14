@@ -4,11 +4,10 @@
 
 module Data.Lens.Barlow.Types where
 
-import GHC.TypeLits (Symbol, Nat)
+import GHC.TypeLits (Nat, Symbol)
 
 data Tag
-  = Tag'Dot
-  | Tag'QuestionMark
+  = Tag'QuestionMark
   | Tag'RightArrow
   | Tag'LeftArrow
   | Tag'Plus
@@ -18,8 +17,7 @@ data Tag
   | Tag'FieldName Symbol
 
 data TagVal
-  = TagVal'Dot
-  | TagVal'QuestionMark
+  = TagVal'QuestionMark
   | TagVal'RightArrow
   | TagVal'LeftArrow
   | TagVal'Plus
