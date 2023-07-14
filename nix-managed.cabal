@@ -26,7 +26,8 @@ source-repository head
 library
   exposed-modules:
       Data.Lens.Barlow
-      Data.Lens.Barlow.ParserClasses
+      Data.Lens.Barlow.Construction
+      Data.Lens.Barlow.Generic
       Data.Lens.Barlow.ParserTF
       Data.Lens.Barlow.Types
   other-modules:
@@ -39,6 +40,8 @@ library
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , lens
+    , profunctors
     , string-interpolate
   default-language: Haskell2010
 
@@ -54,7 +57,9 @@ executable nix-managed
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , lens
     , nix-managed
+    , profunctors
     , string-interpolate
   default-language: Haskell2010
 
@@ -71,6 +76,8 @@ test-suite nix-managed-test
   build-depends:
       base >=4.7 && <5
     , first-class-families
+    , lens
     , nix-managed
+    , profunctors
     , string-interpolate
   default-language: Haskell2010
