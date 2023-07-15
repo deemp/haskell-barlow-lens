@@ -41,7 +41,7 @@
           ghcVersion = "945";
 
           # The name of a package
-          packageName = "nix-managed";
+          packageName = "barlow-lens";
 
           # The libraries that the package needs during a build
           packageLibraryDependencies = [ pkgs.lzma ];

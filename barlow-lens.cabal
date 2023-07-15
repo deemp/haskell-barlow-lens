@@ -4,11 +4,11 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           nix-managed
+name:           barlow-lens
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/value/nix-managed#readme>
-homepage:       https://github.com/value/nix-managed#readme
-bug-reports:    https://github.com/value/nix-managed/issues
+description:    Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
+homepage:       https://github.com/value/barlow-lens#readme
+bug-reports:    https://github.com/value/barlow-lens/issues
 author:         value
 maintainer:     value
 copyright:      value
@@ -21,16 +21,17 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/value/nix-managed
+  location: https://github.com/value/barlow-lens
 
 library
   exposed-modules:
       Data.Lens.Barlow
+      Data.Lens.Barlow.Classes
       Data.Lens.Barlow.Construction
-      Data.Lens.Barlow.ParserTF
+      Data.Lens.Barlow.Parser
       Data.Lens.Barlow.Types
   other-modules:
-      Paths_nix_managed
+      Paths_barlow_lens
   hs-source-dirs:
       src
   default-extensions:
@@ -45,41 +46,43 @@ library
     , string-interpolate
   default-language: Haskell2010
 
-executable nix-managed
+executable barlow-lens
   main-is: Main.hs
   other-modules:
-      Paths_nix_managed
+      Paths_barlow_lens
   hs-source-dirs:
       app
   default-extensions:
       ImportQualifiedPost
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      barlow-lens
+    , base >=4.7 && <5
     , first-class-families
     , generic-lens
     , lens
-    , nix-managed
     , profunctors
     , string-interpolate
   default-language: Haskell2010
 
-test-suite nix-managed-test
+test-suite barlow-lens-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
-      Paths_nix_managed
+      Paths_barlow_lens
   hs-source-dirs:
       test
   default-extensions:
       ImportQualifiedPost
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      barlow-lens
+    , base >=4.7 && <5
     , first-class-families
     , generic-lens
     , lens
-    , nix-managed
     , profunctors
     , string-interpolate
+    , tasty
+    , tasty-hunit
   default-language: Haskell2010

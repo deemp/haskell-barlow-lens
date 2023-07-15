@@ -1,6 +1,6 @@
-name: nix-managed
+name: barlow-lens
 version: 0.1.0.0
-github: "value/nix-managed"
+github: "value/barlow-lens"
 license: BSD3
 author: "value"
 maintainer: "value"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: Please see the README on GitHub at <https://github.com/value/nix-managed#readme>
+description: Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
 
 default-extensions:
   - ImportQualifiedPost
@@ -45,7 +45,7 @@ library:
   source-dirs: src
 
 executables:
-  nix-managed:
+  barlow-lens:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -53,15 +53,17 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - nix-managed
+      - barlow-lens
 
 tests:
-  nix-managed-test:
-    main: Spec.hs
+  barlow-lens-test:
+    main: Main.hs
     source-dirs: test
     ghc-options:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - nix-managed
+      - barlow-lens
+      - tasty
+      - tasty-hunit
