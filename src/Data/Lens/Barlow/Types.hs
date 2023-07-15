@@ -1,28 +1,27 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
-
 module Data.Lens.Barlow.Types where
 
-import GHC.TypeLits (Nat, Symbol)
+import GHC.TypeLits (Natural, Symbol)
+import GHC.TypeNats (Nat)
 
 data Tag
-  = Tag'QuestionMark
+  = Tag'Dot
+  | Tag'QuestionMark
   | Tag'RightArrow
   | Tag'LeftArrow
   | Tag'Plus
   | Tag'ExclamationMark
   | Tag'PercentageName Symbol
   | Tag'PercentageNumber Nat
-  | Tag'FieldName Symbol
+  | Tag'Name Symbol
 
 data TagVal
-  = TagVal'QuestionMark
+  = TagVal'Dot
+  | TagVal'QuestionMark
   | TagVal'RightArrow
   | TagVal'LeftArrow
   | TagVal'Plus
   | TagVal'ExclamationMark
   | TagVal'PercentageName String
-  | TagVal'PercentageNumber Integer
-  | TagVal'FieldName String
-  deriving (Show)
+  | TagVal'PercentageNumber Natural
+  | TagVal'Name String
+  deriving (Show, Eq)
