@@ -67,7 +67,7 @@ executable barlow-lens
 
 test-suite barlow-lens-test
   type: exitcode-stdio-1.0
-  main-is: Main.hs
+  main-is: Barlow/Main.hs
   other-modules:
       Paths_barlow_lens
   hs-source-dirs:

@@ -57,7 +57,7 @@ executables:
 
 tests:
   barlow-lens-test:
-    main: Main.hs
+    main: Barlow/Main.hs
     source-dirs: test
     ghc-options:
       - -threaded
