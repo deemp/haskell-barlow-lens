@@ -32,7 +32,7 @@
           inherit (inputs.drv-tools.lib.${system}) mkBin withAttrs withMan withDescription mkShellApp man;
           inherit (inputs.flakes-tools.lib.${system}) mkFlakesTools;
           inherit (inputs.haskell-tools.lib.${system}) toolsGHC;
-          inherit (inputs.workflows.lib.${system}) writeWorkflow nixCI;
+          inherit (inputs.workflows.lib.${system}) writeWorkflow nixCI run steps;
           inherit (inputs) lima;
 
           # --- Parameters ---
@@ -172,7 +172,14 @@
             # --- GH Actions
 
             # A script to write GitHub Actions workflow file into `.github/ci.yaml`
-            writeWorkflows = writeWorkflow "ci" (nixCI { });
+            writeWorkflows = writeWorkflow "ci" (nixCI {
+              steps = dir: [
+                {
+                  name = "Build package";
+                  run = run.nixScript { name = "default"; doRun = false; doBuild = true; };
+                }
+              ];
+            });
           };
 
           # --- Devshells ---
