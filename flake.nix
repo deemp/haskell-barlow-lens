@@ -7,10 +7,8 @@
       inputs_ =
         let flakes = inputs.flakes.flakes; in
         {
-          inherit (flakes.source-flake) flake-utils nixpkgs;
-          inherit (flakes)
-            codium drv-tools devshell
-            flakes-tools workflows lima;
+          inherit (flakes.source-flake) flake-utils nixpkgs lima;
+          inherit (flakes) codium drv-tools devshell flakes-tools workflows;
           haskell-tools = flakes.language-tools.haskell;
         };
 
@@ -29,72 +27,27 @@
           pkgs = inputs.nixpkgs.legacyPackages.${system};
           inherit (inputs.codium.lib.${system}) extensions extensionsCommon settingsNix settingsCommonNix writeSettingsJSON mkCodium;
           inherit (inputs.devshell.lib.${system}) mkCommands mkRunCommands mkShell;
-          inherit (inputs.drv-tools.lib.${system}) mkBin withAttrs withMan withDescription mkShellApp man;
+          inherit (inputs.drv-tools.lib.${system}) mkBin withAttrs withMan withDescription mkShellApps man getExe;
           inherit (inputs.flakes-tools.lib.${system}) mkFlakesTools;
           inherit (inputs.haskell-tools.lib.${system}) toolsGHC;
           inherit (inputs.workflows.lib.${system}) writeWorkflow nixCI run steps;
-          inherit (inputs) lima;
 
           # --- Parameters ---
 
           # The desired GHC version
-          ghcVersion = "945";
+          ghcVersion = "928";
 
           # The name of a package
-          packageName = "barlow-lens";
-
-          # The libraries that the package needs during a build
-          packageLibraryDependencies = [ pkgs.lzma ];
-
-          # The packages that provide the binaries that our package uses at runtime
-          packageRuntimeDependencies = [ pkgs.hello ];
+          barlow-lens = "barlow-lens";
 
           # --- Override ---
-
-          # We need to prepare an attrset of Haskell packages and include our packages into it,
-          # so we define an override - https://nixos.wiki/wiki/Haskell#Overrides.
-          # We'll supply the necessary dependencies to our packages.
-          # Sometimes, we need to fix the broken packages - https://gutier.io/post/development-fixing-broken-haskell-packages-nixpkgs/.
-          # For doing that, we use several helper functions.
-          # Overriding the packages may trigger multiple rebuilds,
-          # so we override as few packages as possible.
-
-          inherit (pkgs.haskell.lib)
-            # doJailbreak - remove package bounds from build-depends of a package
-            doJailbreak
-            # dontCheck - skip tests
-            dontCheck
-            # override deps of a package
-            overrideCabal
-            ;
 
           # Here's our override
           # Haskell overrides are described here: https://nixos.org/manual/nixpkgs/unstable/#haskell
           override = {
             overrides = self: super: {
-              lzma = dontCheck (doJailbreak super.lzma);
-              "${packageName}" = overrideCabal
-                (super.callCabal2nix packageName ./. { })
-                (x: {
-                  # See what can be overriden - https://github.com/NixOS/nixpkgs/blob/0ba44a03f620806a2558a699dba143e6cf9858db/pkgs/development/haskell-modules/generic-builder.nix#L13
-                  # And the explanation of the deps - https://nixos.org/manual/nixpkgs/unstable/#haskell-derivation-deps
-
-                  # Dependencies of the our package library
-                  # New deps go before the existing deps and override them
-                  librarySystemDepends = packageLibraryDependencies ++ (x.librarySystemDepends or [ ]);
-
-                  # Dependencies of our package executables
-                  executableSystemDepends = packageLibraryDependencies ++ (x.executableSystemDepends or [ ]);
-
-                  # Here's how we can add a package built from sources
-                  # Later, we may use this package in `.cabal` in a test-suite
-                  # We should use `cabal v1-*` commands with it - https://github.com/NixOS/nixpkgs/issues/130556#issuecomment-1114239002
-                  # `lima` lets you write a `README.hs` and convert it to `README.md` - https://hackage.haskell.org/package/lima
-                  # Uncomment `lima` to use it
-                  testHaskellDepends = [
-                    # (super.callCabal2nix "lima" lima.outPath { })
-                  ] ++ (x.testHaskellDepends or [ ]);
-                });
+              ${barlow-lens} = super.callCabal2nix barlow-lens ./. { };
+              lima = inputs.lima.outputs.packages.${system}.default;
             };
           };
 
@@ -105,10 +58,6 @@
             version = ghcVersion;
             inherit override;
 
-            # Programs that will be available to cabal at development time
-            # and to a Haskell program at runtime
-            runtimeDependencies = packageRuntimeDependencies;
-
             # If we work on multiple packages, we need to supply all of them
             # so that their dependencies can be correctrly filtered.
 
@@ -116,10 +65,10 @@
             # GHC will be given dependencies of both A and B.
             # However, we don't want B to be in the list of dependencies of GHC
             # because build of GHC may fail due to errors in B.
-            packages = ps: [ ps.${packageName} ];
+            packages = ps: [ ps.${barlow-lens} ];
           })
             hls cabal fourmolu implicit-hie justStaticExecutable
-            ghcid callCabal2nix haskellPackages hpack ghc;
+            ghcid callCabal2nix haskellPackages hpack;
 
           # --- Tools ---
 
@@ -130,11 +79,6 @@
             implicit-hie
             fourmolu
             cabal
-            # `cabal` already has a `ghc` on its `PATH`,
-            # so you may remove `ghc` from this list
-            # Then, you can access `ghc` like `cabal exec -- ghc --version`
-            ghc
-            # anyway, if you'd like to use `GHC`, write it before `HLS` - see https://github.com/NixOS/nixpkgs/issues/225895
             hls
           ];
 
@@ -145,20 +89,12 @@
 
             # This is a static executable with given runtime dependencies.
             # In this case, its name is the same as the package name.
-            default = justStaticExecutable {
-              package = haskellPackages.${packageName};
-              runtimeDependencies = packageRuntimeDependencies;
-              description = "A Haskell `hello-world` script";
-            };
+            default = haskellPackages.${barlow-lens};
 
             # --- IDE ---
 
-            # This part can be removed if you don't use `VSCodium`
-            # We compose `VSCodium` with extensions and runtime tools
-            # This is to let `VSCodium` run on its own, outside of a devshell
             codium = mkCodium {
               extensions = extensionsCommon // { inherit (extensions) haskell; };
-              runtimeDependencies = tools;
             };
 
             # a script to write `.vscode/settings.json`
@@ -173,13 +109,20 @@
 
             # A script to write GitHub Actions workflow file into `.github/ci.yaml`
             writeWorkflows = writeWorkflow "ci" (nixCI {
-              steps = dir: [
-                {
-                  name = "Build package";
-                  run = run.nixScript { name = "default"; doRun = false; doBuild = true; };
-                }
-              ];
+              jobArgs = {
+                steps = dir: [
+                  {
+                    name = "Build package";
+                    run = run.nixScript { name = "default"; doRun = false; };
+                  }
+                ];
+              };
             });
+          } // mkShellApps {
+            writeDocs = {
+              text = "${getExe cabal} test ${barlow-lens}:test:readme";
+              description = "Write docs";
+            };
           };
 
           # --- Devshells ---
@@ -191,17 +134,9 @@
               bash.extra = "export LANG=C.utf8";
               commands =
                 mkCommands "tools" tools
-                ++ mkCommands "packages" [ packages.default ]
                 ++ mkRunCommands "ide" { "codium ." = packages.codium; inherit (packages) writeSettings; }
                 ++ mkRunCommands "infra" { inherit (packages) writeWorkflows updateLocks pushToCachix; }
-                ++
-                [
-                  {
-                    name = "cabal v1-run";
-                    category = "scripts";
-                    help = "Run app via cabal";
-                  }
-                ];
+                ++ mkRunCommands "docs" { inherit (packages) writeDocs; };
             };
           };
         in
