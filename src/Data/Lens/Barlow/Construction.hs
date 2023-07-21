@@ -10,7 +10,7 @@
 
 module Data.Lens.Barlow.Construction where
 
-import Control.Lens (Optic, traversed, _Just, _Left, _Right, (^?))
+import Control.Lens (Optic, traversed, _Just, _Left, _Right)
 import Control.Lens.Iso (Profunctor)
 import Control.Lens.Prism (Choice)
 import Data.Generics.Product.Fields (HasField (field))
