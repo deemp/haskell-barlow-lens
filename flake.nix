@@ -103,7 +103,7 @@
             # --- Flakes ---
 
             # Scripts that can be used in CI
-            inherit (mkFlakesTools { dirs = [ "." ]; root = self.outPath; }) updateLocks format pushToCachix;
+            inherit (mkFlakesTools { dirs = [ "." ]; root = self.outPath; }) updateLocks format saveFlakes pushToCachix;
 
             # --- GH Actions
 
