@@ -110,6 +110,12 @@
             # A script to write GitHub Actions workflow file into `.github/ci.yaml`
             writeWorkflows = writeWorkflow "ci" (nixCI {
               jobArgs = {
+                cacheNixArgs = {
+                  linuxGCEnabled = true;
+                  linuxMaxStoreSize = 4500000000;
+                  macosGCEnabled = true;
+                  macosMaxStoreSize = 4500000000;
+                };
                 steps = dir: [
                   {
                     name = "Build package";
