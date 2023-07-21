@@ -36,7 +36,7 @@ library
       src
   default-extensions:
       ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-unticked-promoted-constructors
   build-depends:
       base >=4.7 && <5
     , first-class-families
@@ -46,35 +46,14 @@ library
     , string-interpolate
   default-language: Haskell2010
 
-executable barlow-lens
-  main-is: Main.hs
-  other-modules:
-      Paths_barlow_lens
-  hs-source-dirs:
-      app
-  default-extensions:
-      ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      barlow-lens
-    , base >=4.7 && <5
-    , first-class-families
-    , generic-lens
-    , lens
-    , profunctors
-    , string-interpolate
-  default-language: Haskell2010
-
-test-suite barlow-lens-test
+test-suite barlow-lens
   type: exitcode-stdio-1.0
-  main-is: Barlow/Main.hs
+  main-is: test/Barlow/Main.hs
   other-modules:
       Paths_barlow_lens
-  hs-source-dirs:
-      test
   default-extensions:
       ImportQualifiedPost
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-unticked-promoted-constructors -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       barlow-lens
     , base >=4.7 && <5
@@ -85,4 +64,24 @@ test-suite barlow-lens-test
     , string-interpolate
     , tasty
     , tasty-hunit
+  default-language: Haskell2010
+
+test-suite readme
+  type: exitcode-stdio-1.0
+  main-is: README.hs
+  other-modules:
+      Paths_barlow_lens
+  default-extensions:
+      ImportQualifiedPost
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-unticked-promoted-constructors
+  build-depends:
+      barlow-lens
+    , base >=4.7 && <5
+    , first-class-families
+    , generic-lens
+    , lens
+    , lima
+    , profunctors
+    , string-interpolate
+    , text
   default-language: Haskell2010
