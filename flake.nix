@@ -7,7 +7,7 @@
       inputs_ =
         let flakes = inputs.flakes.flakes; in
         {
-          inherit (flakes.source-flake) flake-utils nixpkgs lima;
+          inherit (flakes.source-flake) flake-utils nixpkgs lima formatter;
           inherit (flakes) codium drv-tools devshell flakes-tools workflows;
           haskell-tools = flakes.language-tools.haskell;
         };
@@ -103,7 +103,7 @@
             # --- Flakes ---
 
             # Scripts that can be used in CI
-            inherit (mkFlakesTools { dirs = [ "." ]; root = self.outPath; }) updateLocks pushToCachix;
+            inherit (mkFlakesTools { dirs = [ "." ]; root = self.outPath; }) updateLocks format pushToCachix;
 
             # --- GH Actions
 
@@ -142,8 +142,7 @@
         in
         {
           inherit packages devShells;
-
-          ghcVersions = pkgs.lib.attrsets.mapAttrsToList (name: _: pkgs.lib.strings.removePrefix "ghc" name) pkgs.haskell.compiler;
+          formatter = inputs.formatter.${system};
         });
 
       nixConfig = {
