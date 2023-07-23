@@ -43,8 +43,11 @@ jobs:
         run: |-
           nix profile install .#format
           nix run .#format
-      - if: matrix.os == 'ubuntu-22.04'
-        name: Commit & Push
+      - name: Write docs
+        run: |-
+          nix profile install .#writeDocs
+          nix run .#writeDocs
+      - name: Commit & Push
         run: |-
           git pull --rebase --autostash
 
@@ -54,6 +57,7 @@ jobs:
             -m "action" \
             -m "Update flake locks" \
             -m "Format Nix files" \
+            -m "Write docs" \
             || echo "commit failed!"
 
           git push

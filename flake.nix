@@ -75,52 +75,63 @@
 
           # --- Packages ---
 
-          packages = {
-            # --- Haskell package ---
-
-            # This is a static executable with given runtime dependencies.
-            # In this case, its name is the same as the package name.
-            default = haskellPackages.${barlow-lens};
-
-            # --- IDE ---
-
-            codium = mkCodium {
-              extensions = extensionsCommon // { inherit (extensions) haskell; };
-            };
-
-            # a script to write `.vscode/settings.json`
-            writeSettings = writeSettingsJSON (settingsCommonNix // { inherit (settingsNix) haskell; });
-
-            # --- Flakes ---
-
-            # Scripts that can be used in CI
-            inherit (mkFlakesTools { dirs = [ "." ]; root = ./.; }) updateLocks format saveFlakes pushToCachix;
-
-            # --- GH Actions
-
-            # A script to write GitHub Actions workflow file into `.github/ci.yaml`
-            writeWorkflows = writeWorkflow "ci" (nixCI {
-              jobArgs = {
-                cacheNixArgs = {
-                  linuxGCEnabled = true;
-                  linuxMaxStoreSize = 4500000000;
-                  macosGCEnabled = true;
-                  macosMaxStoreSize = 4500000000;
+          packages =
+            let
+              packages1 = mkShellApps {
+                writeDocs = {
+                  text = "${getExe cabal} test ${barlow-lens}:test:readme";
+                  description = "Write docs";
                 };
-                steps = dir: [
-                  {
-                    name = "Build package";
-                    run = run.nixScript { name = "default"; doRun = false; };
-                  }
-                ];
               };
-            });
-          } // mkShellApps {
-            writeDocs = {
-              text = "${getExe cabal} test ${barlow-lens}:test:readme";
-              description = "Write docs";
-            };
-          };
+              packages2 = {
+                # --- Haskell package ---
+
+                # This is a static executable with given runtime dependencies.
+                # In this case, its name is the same as the package name.
+                default = haskellPackages.${barlow-lens};
+
+                # --- IDE ---
+
+                codium = mkCodium {
+                  extensions = extensionsCommon // { inherit (extensions) haskell; };
+                };
+
+                # a script to write `.vscode/settings.json`
+                writeSettings = writeSettingsJSON (settingsCommonNix // { inherit (settingsNix) haskell; });
+
+                # --- Flakes ---
+
+                # Scripts that can be used in CI
+                inherit (mkFlakesTools { dirs = [ "." ]; root = ./.; }) updateLocks format saveFlakes pushToCachix;
+
+                # --- GH Actions
+
+                # A script to write GitHub Actions workflow file into `.github/ci.yaml`
+                writeWorkflows = writeWorkflow "ci" (nixCI {
+                  jobArgs = {
+                    cacheNixArgs = {
+                      linuxGCEnabled = true;
+                      linuxMaxStoreSize = 4500000000;
+                      macosGCEnabled = true;
+                      macosMaxStoreSize = 4500000000;
+                    };
+                    doCommit = false;
+                    steps = dir: [
+                      {
+                        name = "Write docs";
+                        run = run.nixScript { name = packages1.writeDocs.pname; };
+                      }
+                      (steps.commit { messages = [ (steps.updateLocks { }).name (steps.format { }).name "Write docs" ]; })
+                      {
+                        name = "Build package";
+                        run = run.nixScript { name = "default"; doRun = false; };
+                      }
+                    ];
+                  };
+                });
+              };
+            in
+            packages1 // packages2;
 
           # --- Devshells ---
 
