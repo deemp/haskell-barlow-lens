@@ -1,5 +1,5 @@
 {-
-# haskell-barlow-lens
+# barlow-lens
 
 Barlow lens increases your magnification and let's you see the stars sparkles
 
