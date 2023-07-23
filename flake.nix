@@ -1,23 +1,14 @@
 {
   inputs.flakes.url = "github:deemp/flakes";
-
-  outputs =
-    inputs@{ self, ... }:
-    let
-      inputs_ =
-        let flakes = inputs.flakes.flakes; in
-        {
-          inherit (flakes.source-flake) flake-utils nixpkgs lima formatter;
-          inherit (flakes) codium drv-tools devshell flakes-tools workflows;
-          haskell-tools = flakes.language-tools.haskell;
-        };
-
-      outputs = outputs_ { } // { inputs = inputs_; outputs = outputs_; };
-
-      outputs_ =
-        inputs__:
-        let inputs = inputs_ // inputs__; in
-        inputs.flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs:
+    let makeFlake = inputs.flakes.makeFlake; in
+    makeFlake {
+      inputs = {
+        inherit (inputs.flakes.all)
+          nixpkgs lima formatter codium drv-tools devshell
+          flakes-tools workflows haskell-tools;
+      };
+      perSystem = { inputs, system }:
         let
           # We're going to make some dev tools for our Haskell package
           # The NixOS wiki has more info - https://nixos.wiki/wiki/Haskell
@@ -103,7 +94,7 @@
             # --- Flakes ---
 
             # Scripts that can be used in CI
-            inherit (mkFlakesTools { dirs = [ "." ]; root = self.outPath; }) updateLocks format saveFlakes pushToCachix;
+            inherit (mkFlakesTools { dirs = [ "." ]; root = ./.; }) updateLocks format saveFlakes pushToCachix;
 
             # --- GH Actions
 
@@ -149,20 +140,19 @@
         {
           inherit packages devShells;
           formatter = inputs.formatter.${system};
-        });
+        };
+    };
 
-      nixConfig = {
-        extra-substituters = [
-          "https://nix-community.cachix.org"
-          "https://cache.iog.io"
-          "https://deemp.cachix.org"
-        ];
-        extra-trusted-public-keys = [
-          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-          "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
-          "deemp.cachix.org-1:9shDxyR2ANqEPQEEYDL/xIOnoPwxHot21L5fiZnFL18="
-        ];
-      };
-    in
-    outputs;
+  nixConfig = {
+    extra-substituters = [
+      "https://nix-community.cachix.org"
+      "https://cache.iog.io"
+      "https://deemp.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
+      "deemp.cachix.org-1:9shDxyR2ANqEPQEEYDL/xIOnoPwxHot21L5fiZnFL18="
+    ];
+  };
 }
