@@ -1,10 +1,10 @@
 name: barlow-lens
 version: 0.1.0.0
-github: "value/barlow-lens"
+github: "deemp/barlow-lens"
 license: BSD3
-author: "value"
-maintainer: "value"
-copyright: "value"
+author: "Danila Danko, "
+maintainer: "Danila Danko"
+copyright: "Danila Danko"
 
 extra-source-files:
   - README.md
@@ -25,7 +25,6 @@ default-extensions:
 dependencies:
   - base >= 4.7 && < 5
   - first-class-families
-  - string-interpolate
   - lens
   - profunctors
   - generic-lens

@@ -7,11 +7,11 @@ cabal-version: 1.12
 name:           barlow-lens
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
-homepage:       https://github.com/value/barlow-lens#readme
-bug-reports:    https://github.com/value/barlow-lens/issues
-author:         value
-maintainer:     value
-copyright:      value
+homepage:       https://github.com/deemp/barlow-lens#readme
+bug-reports:    https://github.com/deemp/barlow-lens/issues
+author:         Danila Danko, 
+maintainer:     Danila Danko
+copyright:      Danila Danko
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/value/barlow-lens
+  location: https://github.com/deemp/barlow-lens
 
 library
   exposed-modules:
@@ -43,7 +43,6 @@ library
     , generic-lens
     , lens
     , profunctors
-    , string-interpolate
   default-language: Haskell2010
 
 test-suite barlow-lens
@@ -61,7 +60,6 @@ test-suite barlow-lens
     , generic-lens
     , lens
     , profunctors
-    , string-interpolate
     , tasty
     , tasty-hunit
   default-language: Haskell2010
@@ -82,6 +80,5 @@ test-suite readme
     , lens
     , lima
     , profunctors
-    , string-interpolate
     , text
   default-language: Haskell2010
