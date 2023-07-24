@@ -11,33 +11,22 @@ This package is a port of [purescript-barlow-lens](https://github.com/sigma-ande
 -}
 
 {- FOURMOLU_DISABLE -}
-{- D -}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+
+{- D -}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use newtype instead of data" #-}
-
-module Main where
-
-import Data.Text.IO qualified as T
-import Lima.Converter
 
 {- E -}
 {- FOURMOLU_ENABLE -}
 
-import Control.Lens ((%~), (^.), (^..), (^?))
+import Control.Lens ((%~), (&), (^.), (^..), (^?))
 import Data.Char (toUpper)
 import Data.Lens.Barlow
 import GHC.Generics
-
-{- D -}
-
-main :: IO ()
-main = T.readFile "README.hs" >>= T.writeFile "README.md" . (Hs `convertTo` Md) (def & indent ?~ "i" & dedent ?~ "d" & enable ?~ "E" & disable ?~ "D")
-
-{- E -}
 
 {-
 ## Features
@@ -45,11 +34,11 @@ main = T.readFile "README.hs" >>= T.writeFile "README.md" . (Hs `convertTo` Md) 
 Barlow creates optics for the following types:
 
 - 🥇 [`Records`](#tldr)
-- 📦🐈 [`Maybe`](#Maybe)
-- 🤷🏽‍♀️ [`Either`](#Either)
-- 📜 [`Traversables`](#Traversables)
-- 🎁 [`Newtype`](#Newtype)
-- 🤖 [`Data types`](#Data-types)
+- 📦🐈 [`Maybe`](#maybe)
+- 🤷🏽‍♀️ [`Either`](#either)
+- 📜 [`Traversables`](#traversables)
+- 🎁 [`Newtype`](#newtype)
+- 🤖 [`Data types`](#data-types)
 
 ### Records
 
@@ -162,7 +151,7 @@ alphaRight = skyList ^.. bw @"zodiac+virgo>"
 -- [AlphaLeftRight {alpha = Left "Spica1"},AlphaLeftRight {alpha = Right "Spica2"}]
 
 {-
-# Newtype
+### Newtype
 
 Use `!` to zoom into a `newtype`.
 
@@ -183,7 +172,7 @@ starNewtype = skyNewtype ^. bw @"zodiac!!"
 -- "Spica"
 
 {-
-# Data types
+### Data types
 
 Barlow supports zooming into arbitrary sum and product types as long as there is a `Generic` instance.
 
@@ -269,5 +258,5 @@ starData = skyData ^. bw @"%VirgoData%3"
 - [.envrc](./.envrc) - for [direnv](https://github.com/direnv/direnv)
 - [fourmolu.yaml](./fourmolu.yaml) - for [fourmolu](https://github.com/fourmolu/fourmolu#configuration)
 - [ci.yaml](.github/workflows/ci.yaml) - a generated `GitHub Actions` workflow. See [workflows](https://github.com/deemp/flakes/tree/main/workflows). Generate a workflow via `nix run .#writeWorkflows`.
-- [hie.yaml] - a config for [hie-bios](https://github.com/haskell/hie-bios). Can be generated via [implicit-hie](https://github.com/Avi-D-coder/implicit-hie) to check the `Haskell Language Server` setup.
+- [hie.yaml](./hie.yaml) - a config for [hie-bios](https://github.com/haskell/hie-bios). Can be generated via [implicit-hie](https://github.com/Avi-D-coder/implicit-hie) to check the `Haskell Language Server` setup.
 -}

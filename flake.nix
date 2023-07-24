@@ -39,6 +39,7 @@
             overrides = self: super: {
               ${barlow-lens} = super.callCabal2nix barlow-lens ./. { };
               lima = inputs.lima.outputs.packages.${system}.default;
+              make-docs = super.callCabal2nix "make-docs" ./make-docs {};
             };
           };
 
@@ -79,7 +80,7 @@
             let
               packages1 = mkShellApps {
                 writeDocs = {
-                  text = "${getExe cabal} test ${barlow-lens}:test:readme";
+                  text = getExe haskellPackages.make-docs;
                   description = "Write docs";
                 };
               };
