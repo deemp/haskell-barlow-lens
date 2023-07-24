@@ -58,7 +58,5 @@ tests:
   readme:
     main: README.hs
     dependencies:
-      - lima
-      - text
       - barlow-lens
 

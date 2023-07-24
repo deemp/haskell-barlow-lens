@@ -78,7 +78,5 @@ test-suite readme
     , first-class-families
     , generic-lens
     , lens
-    , lima
     , profunctors
-    , text
   default-language: Haskell2010

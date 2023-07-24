@@ -28,6 +28,13 @@ import Data.Char (toUpper)
 import Data.Lens.Barlow
 import GHC.Generics
 
+{- D -}
+
+main :: IO ()
+main = putStrLn "hello"
+
+{- E -}
+
 {-
 ## Features
 
