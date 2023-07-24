@@ -33,6 +33,13 @@ import Data.Lens.Barlow
 import GHC.Generics
 ```
 
+<!-- D
+
+main :: IO ()
+main = putStrLn "hello"
+
+E -->
+
 ## Features
 
 Barlow creates optics for the following types:
