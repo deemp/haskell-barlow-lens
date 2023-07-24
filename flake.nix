@@ -39,7 +39,7 @@
             overrides = self: super: {
               ${barlow-lens} = super.callCabal2nix barlow-lens ./. { };
               lima = inputs.lima.outputs.packages.${system}.default;
-              make-docs = super.callCabal2nix "make-docs" ./make-docs {};
+              make-docs = super.callCabal2nix "make-docs" ./make-docs { };
             };
           };
 
