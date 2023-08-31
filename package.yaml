@@ -1,6 +1,6 @@
 name: barlow-lens
 version: 0.1.0.0
-github: "deemp/barlow-lens"
+github: "deemp/haskell-barlow-lens"
 license: BSD3
 author: "Danila Danko, "
 maintainer: "Danila Danko"
@@ -18,6 +18,10 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description: Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
+
+category: Generics, Records, Lens
+
+synopsis: lens via string literals
 
 default-extensions:
   - ImportQualifiedPost

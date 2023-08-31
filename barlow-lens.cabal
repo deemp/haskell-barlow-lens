@@ -6,9 +6,11 @@ cabal-version: 1.12
 
 name:           barlow-lens
 version:        0.1.0.0
+synopsis:       lens via string literals
 description:    Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
-homepage:       https://github.com/deemp/barlow-lens#readme
-bug-reports:    https://github.com/deemp/barlow-lens/issues
+category:       Generics, Records, Lens
+homepage:       https://github.com/deemp/haskell-barlow-lens#readme
+bug-reports:    https://github.com/deemp/haskell-barlow-lens/issues
 author:         Danila Danko, 
 maintainer:     Danila Danko
 copyright:      Danila Danko
@@ -21,7 +23,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/deemp/barlow-lens
+  location: https://github.com/deemp/haskell-barlow-lens
 
 library
   exposed-modules:
