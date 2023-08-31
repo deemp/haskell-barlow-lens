@@ -1,9 +1,9 @@
 {-
 # barlow-lens
 
-Barlow lens increases your magnification and let's you see the stars sparkles
+Barlow lens increases your magnification and lets you see star sparkles.
 
-In other words, barlow lens makes creating complex lenses such as record lenses super simple.
+In other words, `barlow-lens` simplifies creating complex lenses such as record lenses.
 
 This package is a port of [purescript-barlow-lens](https://github.com/sigma-andex/purescript-barlow-lens) based on [generic-lens](https://hackage.haskell.org/package/generic-lens).
 
