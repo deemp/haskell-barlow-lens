@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           barlow-lens
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       lens via string literals
 description:    Please see the README on GitHub at <https://github.com/value/barlow-lens#readme>
 category:       Generics, Records, Lens
